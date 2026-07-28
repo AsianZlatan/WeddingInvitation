@@ -1,0 +1,22 @@
+<svg width="320" height="760" viewBox="0 0 320 760" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="stem" x1="80" y1="720" x2="230" y2="40" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#778B64"/><stop offset="1" stop-color="#A9B68D"/>
+    </linearGradient>
+    <radialGradient id="petal" cx="0" cy="0" r="1" gradientTransform="translate(154 192) rotate(67) scale(74 67)" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFDF8"/><stop offset=".72" stop-color="#F8F0E5"/><stop offset="1" stop-color="#E7D7C6"/>
+    </radialGradient>
+    <filter id="shadow" x="-40%" y="-40%" width="180%" height="180%"><feDropShadow dx="0" dy="12" stdDeviation="10" flood-color="#A98D77" flood-opacity=".18"/></filter>
+  </defs>
+  <path d="M142 742C143 590 169 442 177 302C184 182 200 103 231 34" stroke="url(#stem)" stroke-width="8" stroke-linecap="round"/>
+  <path d="M148 636C95 607 58 608 25 631C83 647 116 654 148 636Z" fill="#9FAE86" opacity=".8"/>
+  <path d="M154 550C213 515 258 516 293 550C232 563 194 568 154 550Z" fill="#A8B58E" opacity=".78"/>
+  <path d="M164 453C112 424 72 430 39 468C96 472 133 468 164 453Z" fill="#A0B089" opacity=".76"/>
+  <path d="M169 362C226 334 265 342 299 380C242 383 202 377 169 362Z" fill="#AAB793" opacity=".73"/>
+  <g filter="url(#shadow)">
+    <g transform="translate(108 536) rotate(-15)"><ellipse cx="45" cy="48" rx="35" ry="51" fill="url(#petal)"/><ellipse cx="78" cy="42" rx="35" ry="50" fill="url(#petal)"/><ellipse cx="62" cy="76" rx="37" ry="48" fill="url(#petal)"/><ellipse cx="18" cy="72" rx="31" ry="43" fill="url(#petal)"/><circle cx="51" cy="59" r="12" fill="#D7B36E"/><path d="M45 59C52 48 63 49 67 58C60 70 51 71 45 59Z" fill="#C98975"/></g>
+    <g transform="translate(129 400) rotate(8) scale(.94)"><ellipse cx="45" cy="48" rx="35" ry="51" fill="url(#petal)"/><ellipse cx="78" cy="42" rx="35" ry="50" fill="url(#petal)"/><ellipse cx="62" cy="76" rx="37" ry="48" fill="url(#petal)"/><ellipse cx="18" cy="72" rx="31" ry="43" fill="url(#petal)"/><circle cx="51" cy="59" r="12" fill="#D7B36E"/><path d="M45 59C52 48 63 49 67 58C60 70 51 71 45 59Z" fill="#C98975"/></g>
+    <g transform="translate(151 264) rotate(-5) scale(.88)"><ellipse cx="45" cy="48" rx="35" ry="51" fill="url(#petal)"/><ellipse cx="78" cy="42" rx="35" ry="50" fill="url(#petal)"/><ellipse cx="62" cy="76" rx="37" ry="48" fill="url(#petal)"/><ellipse cx="18" cy="72" rx="31" ry="43" fill="url(#petal)"/><circle cx="51" cy="59" r="12" fill="#D7B36E"/><path d="M45 59C52 48 63 49 67 58C60 70 51 71 45 59Z" fill="#C98975"/></g>
+    <g transform="translate(177 126) rotate(10) scale(.8)"><ellipse cx="45" cy="48" rx="35" ry="51" fill="url(#petal)"/><ellipse cx="78" cy="42" rx="35" ry="50" fill="url(#petal)"/><ellipse cx="62" cy="76" rx="37" ry="48" fill="url(#petal)"/><ellipse cx="18" cy="72" rx="31" ry="43" fill="url(#petal)"/><circle cx="51" cy="59" r="12" fill="#D7B36E"/><path d="M45 59C52 48 63 49 67 58C60 70 51 71 45 59Z" fill="#C98975"/></g>
+  </g>
+</svg>
