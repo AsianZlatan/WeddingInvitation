@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Давид &amp; Алина — приглашение на свадьбу</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Marck+Script&family=Nunito:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   ПАЛИТРА И БАЗА — нежная пастельная сказка
+   ============================================================ */
+:root{
+  --cream:#fdf6f1;
+  --paper:#fffaf6;
+  --blush:#f6d6df;
+  --blush-deep:#e7a9bd;
+  --rose:#c97f97;
+  --lav:#e6dcf1;
+  --lav-deep:#b9a4d6;
+  --mint:#d6ece1;
+  --gold:#c79a63;
+  --gold-soft:#e3c79b;
+  --ink:#7a5563;
+  --ink-soft:#a07e8b;
+  --shadow:0 22px 60px -28px rgba(150,90,120,.45);
+  --serif:'Playfair Display', Georgia, serif;
+  --script:'Marck Script', cursive;
+  --body:'Nunito', system-ui, sans-serif;
+  --rail:150px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--body);
+  color:var(--ink);
+  background:var(--cream);
+  line-height:1.7;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+body.locked{overflow:hidden;height:100vh}
+
+/* многослойный акварельный фон (не «аврора», а мягкие акварельные пятна по углам) */
+body::before{
+  content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;
+  background:
+    radial-gradient(40vw 40vw at 8% 6%, rgba(246,214,223,.85), transparent 60%),
+    radial-gradient(38vw 38vw at 95% 14%, rgba(230,220,241,.8), transparent 60%),
+    radial-gradient(42vw 42vw at 88% 92%, rgba(214,236,225,.7), transparent 62%),
+    radial-gradient(40vw 40vw at 6% 96%, rgba(246,214,223,.6), transparent 60%),
+    linear-gradient(180deg,#fffaf6,#fdf2ee 40%,#fbf3f6);
+}
+body::after{ /* лёгкая бумажная зернистость */
+  content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.04;
+  background-image:radial-gradient(rgba(120,70,90,.6) .5px, transparent .6px);
+  background-size:4px 4px;
+}
+
+/* падающие лепестки */
+#petals{position:fixed;inset:0;z-index:1;pointer-events:none;overflow:hidden}
+.petal{position:absolute;top:-8vh;width:16px;height:16px;
+  background:radial-gradient(circle at 30% 30%, #ffe3ec, #f3b9cd);
+  border-radius:80% 0 80% 0;opacity:.55;filter:blur(.2px);
+  animation:fall linear infinite;}
+@keyframes fall{
+  0%{transform:translateY(-10vh) translateX(0) rotate(0)}
+  50%{transform:translateY(50vh) translateX(40px) rotate(180deg)}
+  100%{transform:translateY(110vh) translateX(-30px) rotate(360deg)}
+}
+
+/* ============================================================
+   КНОПКА МУЗЫКИ (правый верхний угол)
+   ============================================================ */
+#musicToggle{
+  position:fixed;top:18px;right:18px;z-index:200;
+  width:52px;height:52px;border-radius:50%;cursor:pointer;
+  border:1px solid rgba(199,154,99,.5);
+  background:rgba(255,250,246,.78);backdrop-filter:blur(6px);
+  display:grid;place-items:center;color:var(--rose);
+  box-shadow:0 10px 26px -12px rgba(150,90,120,.55);
+  transition:transform .35s ease, background .35s ease;
+}
+#musicToggle:hover{transform:scale(1.08) rotate(-6deg);background:#fff}
+#musicToggle svg{width:24px;height:24px}
+#musicToggle .ico-off{display:none}
+#musicToggle.muted .ico-on{display:none}
+#musicToggle.muted .ico-off{display:block}
+#musicToggle.playing{animation:pulseRing 2.4s ease-out infinite}
+@keyframes pulseRing{0%{box-shadow:0 0 0 0 rgba(201,127,151,.45)}70%{box-shadow:0 0 0 14px rgba(201,127,151,0)}100%{box-shadow:0 0 0 0 rgba(201,127,151,0)}}
+
+/* ============================================================
+   ИНТРО — конверт с сургучной печатью
+   ============================================================ */
+#intro{
+  position:fixed;inset:0;z-index:150;display:grid;place-items:center;
+  background:
+    radial-gradient(60vw 60vw at 50% 30%, rgba(255,255,255,.6), transparent 70%),
+    linear-gradient(160deg,#fbe9ef,#efe4f4 55%,#e7f0ea);
+  transition:opacity 1.2s ease, visibility 1.2s ease;
+}
+#intro.fading{opacity:0;visibility:hidden}
+.intro-wrap{display:flex;flex-direction:column;align-items:center;gap:34px;padding:20px}
+.envelope{
+  position:relative;width:min(86vw,360px);aspect-ratio:1.62/1;cursor:pointer;
+  filter:drop-shadow(0 30px 40px rgba(150,90,120,.35));
+  transition:transform .6s ease;
+}
+.envelope:hover{transform:translateY(-4px)}
+.env-body{position:absolute;inset:0;border-radius:8px;z-index:1;
+  background:linear-gradient(160deg,#f3c4d2,#e6a4b9);}
+.env-letter{
+  position:absolute;left:8%;right:8%;top:10%;bottom:8%;z-index:2;border-radius:6px;
+  background:linear-gradient(180deg,#fffdf9,#fff4ee);
+  border:1px solid var(--gold-soft);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+  box-shadow:inset 0 0 0 6px rgba(227,199,155,.25);
+  transition:transform .95s cubic-bezier(.2,.8,.2,1) .55s, z-index 0s .55s;
+}
+.env-letter-names{font-family:var(--script);font-size:clamp(34px,9vw,52px);color:var(--rose);line-height:1}
+.env-letter-sub{font-family:var(--serif);font-style:italic;font-size:12px;letter-spacing:2px;color:var(--ink-soft);text-transform:uppercase}
+.env-front{position:absolute;inset:0;z-index:3;border-radius:8px;
+  background:linear-gradient(160deg,#f8d6e0,#efb6c8);
+  clip-path:polygon(0 0, 50% 56%, 100% 0, 100% 100%, 0 100%);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.5);}
+.env-flap{position:absolute;left:0;right:0;top:0;height:56%;z-index:4;
+  background:linear-gradient(160deg,#f0bccd,#e29bb2);
+  clip-path:polygon(0 0, 100% 0, 50% 100%);
+  transform-origin:top center;transition:transform .75s cubic-bezier(.4,0,.2,1), z-index 0s .4s;
+  filter:drop-shadow(0 4px 5px rgba(150,90,120,.25));}
+.seal{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:5;
+  width:74px;height:74px;border-radius:50%;display:grid;place-items:center;
+  background:radial-gradient(circle at 35% 30%, #d27e98, #a8506e 70%, #8f3f5c);
+  box-shadow:0 6px 14px rgba(120,50,75,.5), inset 0 2px 4px rgba(255,255,255,.3), inset 0 -4px 8px rgba(80,20,40,.4);
+  transition:opacity .5s ease .1s, transform .5s ease .1s;}
+.seal::before{content:"";position:absolute;inset:6px;border-radius:50%;border:1px dashed rgba(255,230,235,.5)}
+.seal span{font-family:var(--script);color:#ffeef3;font-size:24px;line-height:1;text-shadow:0 1px 1px rgba(80,20,40,.5)}
+.hint{font-family:var(--serif);font-style:italic;color:var(--ink-soft);letter-spacing:1px;
+  animation:hintPulse 2s ease-in-out infinite}
+@keyframes hintPulse{0%,100%{opacity:.5;transform:translateY(0)}50%{opacity:1;transform:translateY(-3px)}}
+
+/* открытие конверта */
+.envelope.open .env-flap{transform:rotateX(180deg);z-index:0}
+.envelope.open .seal{opacity:0;transform:translate(-50%,-50%) scale(.5)}
+.envelope.open .env-letter{transform:translateY(-135px);z-index:6;transition:transform .95s cubic-bezier(.2,.8,.2,1) .5s, z-index 0s .5s}
+
+/* ============================================================
+   ОБЩИЕ БЛОКИ
+   ============================================================ */
+section{position:relative;z-index:2;padding:96px 22px}
+.container{max-width:980px;margin:0 auto}
+.eyebrow{font-family:var(--script);color:var(--rose);font-size:30px;text-align:center;line-height:1}
+.h2{font-family:var(--serif);font-weight:600;color:var(--ink);text-align:center;
+  font-size:clamp(28px,5vw,46px);letter-spacing:.5px;margin-top:2px;text-shadow:0 2px 10px rgba(255,255,255,.6)}
+.divider{display:flex;align-items:center;justify-content:center;gap:14px;margin:18px auto 0;color:var(--gold)}
+.divider .ln{height:1px;width:70px;background:linear-gradient(90deg,transparent,var(--gold-soft))}
+.divider .ln.r{background:linear-gradient(90deg,var(--gold-soft),transparent)}
+.divider svg{width:26px;height:26px}
+.lead{font-size:clamp(16px,2.4vw,19px);text-align:center;color:var(--ink-soft);max-width:680px;margin:26px auto 0;font-weight:400}
+
+/* scroll reveal */
+.reveal{opacity:0;transform:translateY(42px);transition:opacity 1s cubic-bezier(.2,.7,.2,1), transform 1s cubic-bezier(.2,.7,.2,1)}
+.reveal.visible{opacity:1;transform:none}
+
+/* ============================================================
+   HERO
+   ============================================================ */
+#hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:120px 18px 60px;text-align:center;overflow:hidden}
+.hero-head{position:relative;z-index:5;margin-bottom:30px}
+.hero-names{font-family:var(--serif);font-style:italic;font-weight:600;color:var(--ink);
+  font-size:clamp(40px,9vw,86px);line-height:1.05;text-shadow:0 4px 18px rgba(255,255,255,.7);
+  opacity:0;transform:translateY(20px);transition:1.1s ease .2s}
+.hero-sub{font-family:var(--serif);font-weight:400;letter-spacing:3px;text-transform:uppercase;
+  color:var(--rose);font-size:clamp(12px,2.4vw,17px);margin-top:14px;
+  opacity:0;transform:translateY(20px);transition:1.1s ease .5s}
+body.revealed .hero-names,body.revealed .hero-sub{opacity:1;transform:none}
+
+.photo-frame{position:relative;z-index:4;width:min(78vw,360px);aspect-ratio:3/4;
+  border-radius:180px 180px 24px 24px;padding:10px;
+  background:linear-gradient(160deg,#fff,#fbeef3);
+  box-shadow:var(--shadow), 0 0 0 1px var(--gold-soft);
+  opacity:0;transform:scale(.85);transition:1.3s cubic-bezier(.2,.8,.2,1) .7s}
+body.revealed .photo-frame{opacity:1;transform:none}
+.photo-frame::before{content:"";position:absolute;inset:18px;border:1px solid var(--gold-soft);
+  border-radius:170px 170px 18px 18px;pointer-events:none}
+.photo-frame img{width:100%;height:100%;object-fit:cover;border-radius:170px 170px 16px 16px;display:block}
+.frame-sprig{position:absolute;width:90px;height:90px;z-index:6;opacity:0;transition:1s ease 1.2s}
+body.revealed .frame-sprig{opacity:1}
+.frame-sprig.tl{top:-26px;left:-30px}
+.frame-sprig.br{bottom:-26px;right:-30px;transform:rotate(180deg)}
+
+/* орхидеи по бокам (растут снизу вверх) */
+.orchid{position:absolute;bottom:0;width:clamp(120px,22vw,230px);z-index:3;
+  transform:scaleY(0);transform-origin:bottom center;transition:transform 1.6s cubic-bezier(.2,.8,.2,1)}
+.orchid.left{left:0}
+.orchid.right{right:0;transform:scaleY(0) scaleX(-1);transform-origin:bottom center}
+body.revealed .orchid.left{transform:scaleY(1)}
+body.revealed .orchid.right{transform:scaleY(1) scaleX(-1)}
+
+/* лебеди, заплывающие снизу по бокам */
+.swan-hero{position:absolute;bottom:14px;width:clamp(90px,15vw,150px);z-index:3;opacity:0;
+  transition:transform 1.8s cubic-bezier(.2,.8,.2,1) 1s, opacity 1.4s ease 1s}
+.swan-hero.left{left:6%;transform:translate(-220px,120px)}
+.swan-hero.right{right:6%;transform:translate(220px,120px) scaleX(-1)}
+body.revealed .swan-hero{opacity:1}
+body.revealed .swan-hero.left{transform:translate(0,0)}
+body.revealed .swan-hero.right{transform:translate(0,0) scaleX(-1)}
+
+.scroll-cue{margin-top:38px;color:var(--ink-soft);font-family:var(--serif);font-style:italic;
+  opacity:0;transition:1s ease 1.8s;z-index:5}
+body.revealed .scroll-cue{opacity:.8;animation:bob 2.2s ease-in-out infinite 2s}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(8px)}}
+
+/* ============================================================
+   БЛОК 2 — КАЛЕНДАРЬ
+   ============================================================ */
+.cal-page{max-width:430px;margin:42px auto 0;background:var(--paper);border-radius:18px;
+  box-shadow:var(--shadow);padding:30px 26px 34px;position:relative;border:1px solid rgba(227,199,155,.5)}
+.cal-page::before,.cal-page::after{content:"";position:absolute;top:-12px;width:14px;height:34px;border-radius:8px;
+  background:linear-gradient(180deg,var(--gold),var(--gold-soft));box-shadow:0 4px 8px rgba(150,90,120,.3)}
+.cal-page::before{left:30%}.cal-page::after{right:30%}
+.cal-month{font-family:var(--serif);font-weight:600;font-size:30px;text-align:center;color:var(--ink);margin-bottom:4px}
+.cal-year{font-family:var(--script);color:var(--rose);font-size:24px;text-align:center;margin-bottom:18px}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.cal-dow{font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--ink-soft);text-align:center;font-weight:700;padding-bottom:4px}
+.cal-dow.we{color:var(--rose)}
+.cal-day{aspect-ratio:1;display:grid;place-items:center;font-size:16px;color:var(--ink);border-radius:10px;font-weight:500}
+.cal-day.empty{visibility:hidden}
+.cal-day.today-mark{position:relative;color:#fff;font-weight:700}
+.cal-heart{position:absolute;inset:-6px;width:calc(100% + 12px);height:calc(100% + 12px);z-index:-1}
+.cal-foot{text-align:center;margin-top:16px;font-family:var(--serif);font-style:italic;color:var(--ink-soft)}
+
+/* кнопки */
+.btn{display:inline-flex;align-items:center;gap:10px;cursor:pointer;border:none;
+  font-family:var(--serif);font-size:16px;letter-spacing:1px;color:#fff;
+  padding:15px 34px;border-radius:40px;background:linear-gradient(135deg,var(--rose),var(--blush-deep));
+  box-shadow:0 14px 30px -12px rgba(201,127,151,.8);transition:transform .3s ease, box-shadow .3s ease, filter .3s}
+.btn:hover{transform:translateY(-3px);box-shadow:0 20px 38px -12px rgba(201,127,151,.9);filter:brightness(1.04)}
+.btn:active{transform:translateY(-1px)}
+.btn.ghost{background:transparent;color:var(--rose);border:1px solid var(--blush-deep);box-shadow:none}
+.btn.ghost:hover{background:rgba(246,214,223,.4)}
+.btn svg{width:18px;height:18px}
+.cal-cta{text-align:center;margin-top:30px}
+
+/* ============================================================
+   БЛОК 3 — ТАЙМИНГ С РЕКОЙ
+   ============================================================ */
+.timeline{position:relative;max-width:880px;margin:50px auto 0}
+.river-wrap{position:absolute;left:0;top:0;height:100%;width:var(--rail);z-index:1}
+#riverSvg{width:100%;height:100%;overflow:visible}
+.tl-list{margin-left:calc(var(--rail) + 26px);display:flex;flex-direction:column;gap:64px;position:relative;z-index:2}
+.tl-item{position:relative;border-radius:20px;overflow:hidden;min-height:300px;
+  display:flex;align-items:center;box-shadow:var(--shadow);border:1px solid rgba(255,255,255,.6)}
+.tl-item .bg{position:absolute;inset:0;background-size:cover;background-position:center;transform:scale(1.05);transition:transform 6s ease}
+.tl-item:hover .bg{transform:scale(1.12)}
+.tl-item .scrim{position:absolute;inset:0;
+  background:linear-gradient(100deg, rgba(255,250,246,.92) 0%, rgba(255,250,246,.7) 38%, rgba(255,250,246,.12) 75%)}
+.tl-3 .bg{background:linear-gradient(160deg,#3a3357,#5b4a78 55%,#8a6f9e)}
+.tl-3 .stars{position:absolute;inset:0;background-image:
+  radial-gradient(1.4px 1.4px at 20% 30%, #fff, transparent),
+  radial-gradient(1.2px 1.2px at 70% 20%, #fff, transparent),
+  radial-gradient(1.6px 1.6px at 40% 70%, #fff, transparent),
+  radial-gradient(1.2px 1.2px at 85% 60%, #fff, transparent),
+  radial-gradient(1.3px 1.3px at 55% 45%, #fff, transparent);
+  opacity:.7;animation:twinkle 4s ease-in-out infinite}
+@keyframes twinkle{0%,100%{opacity:.4}50%{opacity:.85}}
+.tl-3 .scrim{background:linear-gradient(100deg, rgba(58,51,87,.55), rgba(58,51,87,.1) 70%)}
+.tl-card{position:relative;padding:34px 36px;max-width:62%}
+.tl-time{font-family:var(--serif);font-weight:700;font-size:clamp(34px,6vw,52px);color:var(--rose);line-height:1;text-shadow:0 2px 8px rgba(255,255,255,.6)}
+.tl-3 .tl-time{color:#ffe3ef;text-shadow:0 2px 12px rgba(0,0,0,.3)}
+.tl-title{font-family:var(--serif);font-weight:600;font-size:clamp(20px,3.4vw,28px);color:var(--ink);margin-top:6px}
+.tl-3 .tl-title{color:#fff}
+.tl-desc{margin-top:8px;color:var(--ink-soft);font-size:15px}
+.tl-3 .tl-desc{color:#e7dcf1}
+.swan-sway{animation:sway 3s ease-in-out infinite;transform-origin:center}
+@keyframes sway{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-3px) rotate(2deg)}}
+
+/* ============================================================
+   БЛОК 4 — МЕСТО ПРОВЕДЕНИЯ
+   ============================================================ */
+.place-card{max-width:760px;margin:46px auto 0;background:var(--paper);border-radius:22px;overflow:hidden;
+  box-shadow:var(--shadow);border:1px solid rgba(227,199,155,.5)}
+.place-info{padding:34px 30px;text-align:center}
+.place-name{font-family:var(--serif);font-weight:600;font-size:26px;color:var(--ink)}
+.place-addr{color:var(--ink-soft);margin-top:6px;font-size:16px}
+.place-map{position:relative;height:340px;border-top:1px solid rgba(227,199,155,.4)}
+.place-map iframe{width:100%;height:100%;border:0;filter:saturate(.9) contrast(.96)}
+.place-route{margin-top:18px}
+
+/* ============================================================
+   БЛОК 5 — ДРЕСС-КОД
+   ============================================================ */
+.dc-img{width:100%;max-width:1000px;margin:34px auto 0;display:block;border-radius:20px;
+  box-shadow:var(--shadow);border:6px solid #fff;outline:1px solid var(--gold-soft)}
+.dc-sub{font-family:var(--serif);font-weight:600;font-size:clamp(22px,4vw,32px);text-align:center;color:var(--ink);margin-top:40px}
+.dc-note{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;
+  margin:26px auto 0;max-width:640px;padding:18px 26px;border-radius:16px;
+  background:linear-gradient(135deg,rgba(246,214,223,.5),rgba(230,220,241,.5));
+  border:1px dashed var(--blush-deep);color:var(--ink);font-style:italic;font-family:var(--serif)}
+.dc-note svg{width:34px;height:34px;flex:0 0 auto}
+
+/* ============================================================
+   БЛОК 6 — ПОЖЕЛАНИЯ
+   ============================================================ */
+.wish-card{max-width:720px;margin:40px auto 0;text-align:center;padding:46px 38px;border-radius:24px;
+  background:linear-gradient(160deg,rgba(255,255,255,.85),rgba(251,238,243,.85));
+  box-shadow:var(--shadow);border:1px solid rgba(227,199,155,.5);position:relative}
+.wish-card .orn{position:absolute;width:60px;height:60px;color:var(--gold-soft)}
+.wish-card .orn.a{top:14px;left:14px}.wish-card .orn.b{bottom:14px;right:14px;transform:rotate(180deg)}
+.wish-text{font-family:var(--serif);font-style:italic;font-size:clamp(17px,2.6vw,22px);color:var(--ink);line-height:1.7}
+.wish-ico{width:54px;height:54px;color:var(--rose);margin:0 auto 18px}
+
+/* ============================================================
+   БЛОК 7 — АНКЕТА ГОСТЯ
+   ============================================================ */
+.form-card{max-width:620px;margin:42px auto 0;background:var(--paper);border-radius:24px;padding:40px 36px;
+  box-shadow:var(--shadow);border:1px solid rgba(227,199,155,.5)}
+.field{margin-bottom:26px}
+.field > label{display:block;font-family:var(--serif);font-weight:600;color:var(--ink);margin-bottom:10px;font-size:17px}
+.input{width:100%;padding:14px 18px;border-radius:14px;border:1px solid var(--blush-deep);
+  background:#fff;font-family:var(--body);font-size:16px;color:var(--ink);transition:border .3s, box-shadow .3s}
+.input:focus{outline:none;border-color:var(--rose);box-shadow:0 0 0 4px rgba(201,127,151,.15)}
+.pills{display:flex;gap:12px;flex-wrap:wrap}
+.pill{position:relative}
+.pill input{position:absolute;opacity:0;inset:0;cursor:pointer}
+.pill span{display:inline-block;padding:12px 26px;border-radius:30px;border:1px solid var(--blush-deep);
+  background:#fff;color:var(--ink);font-weight:600;cursor:pointer;transition:.3s}
+.pill input:checked + span{background:linear-gradient(135deg,var(--rose),var(--blush-deep));color:#fff;border-color:transparent;box-shadow:0 10px 22px -10px rgba(201,127,151,.8)}
+.counter{display:inline-flex;align-items:center;gap:18px;background:#fff;border:1px solid var(--blush-deep);border-radius:40px;padding:6px}
+.cnt-btn{width:42px;height:42px;border-radius:50%;border:none;cursor:pointer;font-size:22px;line-height:1;
+  background:var(--blush);color:var(--rose);font-weight:700;transition:.25s}
+.cnt-btn:hover:not(:disabled){background:var(--blush-deep);color:#fff}
+.cnt-btn:disabled{opacity:.4;cursor:not-allowed}
+#cntVal{min-width:30px;text-align:center;font-family:var(--serif);font-weight:700;font-size:22px;color:var(--ink)}
+.alc-grid{display:flex;flex-wrap:wrap;gap:10px}
+.form-thanks{text-align:center;padding:30px 10px}
+.form-thanks h3{font-family:var(--serif);font-size:30px;color:var(--rose);margin-bottom:10px}
+.form-thanks p{color:var(--ink-soft)}
+
+/* ============================================================
+   ФИНАЛ — лебеди-сердце
+   ============================================================ */
+#finale{padding:120px 22px 90px;text-align:center;position:relative;overflow:hidden}
+.fin-heart{width:min(70vw,300px);margin:0 auto;color:var(--rose);filter:drop-shadow(0 14px 24px rgba(201,127,151,.4))}
+.fin-names{font-family:var(--script);font-size:clamp(48px,12vw,96px);color:var(--rose);line-height:1;margin-top:10px}
+.fin-date{font-family:var(--serif);letter-spacing:6px;color:var(--ink);font-size:clamp(18px,4vw,26px);margin-top:8px}
+.fin-msg{font-family:var(--serif);font-style:italic;color:var(--ink-soft);margin-top:18px;font-size:clamp(16px,3vw,20px)}
+.fin-foot{margin-top:46px;font-family:var(--script);color:var(--gold);font-size:24px}
+.to-top{display:inline-block;margin-top:18px;color:var(--ink-soft);text-decoration:none;font-family:var(--serif);font-style:italic;border-bottom:1px solid var(--gold-soft)}
+
+/* ============================================================
+   АДАПТИВ
+   ============================================================ */
+@media (max-width:760px){
+  :root{--rail:64px}
+  section{padding:72px 16px}
+  .tl-list{margin-left:calc(var(--rail) + 14px);gap:48px}
+  .tl-card{max-width:100%;padding:24px 20px}
+  .tl-item .scrim{background:linear-gradient(180deg, rgba(255,250,246,.94), rgba(255,250,246,.6))}
+  .tl-3 .scrim{background:linear-gradient(180deg, rgba(58,51,87,.6), rgba(58,51,87,.35))}
+  .orchid{width:110px}
+  .swan-hero{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.001s!important;transition-duration:.2s!important}
+  .petal{display:none}
+}
+</style>
+</head>
+<body class="locked">
+
+<!-- падающие лепестки -->
+<div id="petals" aria-hidden="true"></div>
+
+<!-- кнопка музыки -->
+<button id="musicToggle" class="muted" aria-label="Включить или выключить музыку" title="Музыка">
+  <svg class="ico-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a9 9 0 0 1 0 14"/></svg>
+  <svg class="ico-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5z"/><line x1="22" y1="9" x2="16" y2="15"/><line x1="16" y1="9" x2="22" y2="15"/></svg>
+</button>
+
+<!-- ===================== ИНТРО ===================== -->
+<div id="intro">
+  <div class="intro-wrap">
+    <div class="envelope" id="envelope" role="button" tabindex="0" aria-label="Открыть приглашение">
+      <div class="env-letter">
+        <span class="env-letter-names">Д &amp; А</span>
+        <span class="env-letter-sub">приглашение</span>
+      </div>
+      <div class="env-body"></div>
+      <div class="env-front"></div>
+      <div class="env-flap"></div>
+      <div class="seal"><span>Д &amp; А</span></div>
+    </div>
+    <p class="hint" id="hint">нажмите на конверт, чтобы открыть</p>
+  </div>
+</div>
+
+<!-- ===================== HERO ===================== -->
+<header id="hero">
+  <!-- орхидея слева -->
+  <svg class="orchid left" viewBox="0 0 200 360" aria-hidden="true">
+    <path d="M100 360 C96 300 92 240 100 180 C106 130 96 90 100 50" fill="none" stroke="#9bbf9a" stroke-width="4"/>
+    <g fill="#ffffff" stroke="#f0cdd9" stroke-width="1.4">
+      <g transform="translate(100,60)"><ellipse cx="0" cy="-16" rx="9" ry="16"/><ellipse cx="-15" cy="6" rx="15" ry="9" transform="rotate(-30 -15 6)"/><ellipse cx="15" cy="6" rx="15" ry="9" transform="rotate(30 15 6)"/><ellipse cx="-9" cy="14" rx="11" ry="8" transform="rotate(20 -9 14)"/><ellipse cx="9" cy="14" rx="11" ry="8" transform="rotate(-20 9 14)"/><circle cx="0" cy="2" r="6" fill="#f3b9cd" stroke="none"/></g>
+      <g transform="translate(78,130) scale(.85)"><ellipse cx="0" cy="-16" rx="9" ry="16"/><ellipse cx="-15" cy="6" rx="15" ry="9" transform="rotate(-30 -15 6)"/><ellipse cx="15" cy="6" rx="15" ry="9" transform="rotate(30 15 6)"/><ellipse cx="-9" cy="14" rx="11" ry="8"/><ellipse cx="9" cy="14" rx="11" ry="8"/><circle cx="0" cy="2" r="6" fill="#f3b9cd" stroke="none"/></g>
+      <g transform="translate(118,200) scale(.9)"><ellipse cx="0" cy="-16" rx="9" ry="16"/><ellipse cx="-15" cy="6" rx="15" ry="9" transform="rotate(-30 -15 6)"/><ellipse cx="15" cy="6" rx="15" ry="9" transform="rotate(30 15 6)"/><ellipse cx="-9" cy="14" rx="11" ry="8"/><ellipse cx="9" cy="14" rx="11" ry="8"/><circle cx="0" cy="2" r="6" fill="#f3b9cd" stroke="none"/></g>
+      <g transform="translate(86,270) scale(.75)"><ellipse cx="0" cy="-16" rx="9" ry="16"/><ellipse cx="-15" cy="6" rx="15" ry="9" transform="rotate(-30 -15 6)"/><ellipse cx="15" cy="6" rx="15" ry="9" transform="rotate(30 15 6)"/><circle cx="0" cy="2" r="6" fill="#f3b9cd" stroke="none"/></g>
+    </g>
+    <g fill="#bfe0c4"><ellipse cx="70" cy="320" rx="34" ry="12" transform="rotate(-25 70 320)"/><ellipse cx="128" cy="330" rx="34" ry="12" transform="rotate(25 128 330)"/></g>
+  </svg>
+  <!-- орхидея справа -->
+  <svg class="orchid right" viewBox="0 0 200 360" aria-hidden="true">
+    <path d="M100 360 C96 300 92 240 100 180 C106 130 96 90 100 50" fill="none" stroke="#9bbf9a" stroke-width="4"/>
+    <g fill="#ffffff" stroke="#f0cdd9" stroke-width="1.4">
+      <g transform="translate(100,70)"><ellipse cx="0" cy="-16" rx="9" ry="16"/><ellipse cx="-15" cy="6" rx="15" ry="9" transform="rotate(-30 -15 6)"/><ellipse cx="15" cy="6" rx="15" ry="9" transform="rotate(30 15 6)"/><ellipse cx="-9" cy="14" rx="11" ry="8"/><ellipse cx="9" cy="14" rx="11" ry="8"/><circle cx="0" cy="2" r="6" fill="#f3b9cd" stroke="none"/></g>
+      <g transform="translate(120,140) scale(.85)"><ellipse cx="0" cy="-16" rx="9" ry="16"/><ellipse cx="-15" cy="6" rx="15" ry="9" transform="rotate(-30 -15 6)"/><ellipse cx="15" cy="6" rx="15" ry="9" transform="rotate(30 15 6)"/><circle cx="0" cy="2" r="6" fill="#f3b9cd" stroke="none"/></g>
+      <g transform="translate(82,210) scale(.9)"><ellipse cx="0" cy="-16" rx="9" ry="16"/><ellipse cx="-15" cy="6" rx="15" ry="9" transform="rotate(-30 -15 6)"/><ellipse cx="15" cy="6" rx="15" ry="9" transform="rotate(30 15 6)"/><circle cx="0" cy="2" r="6" fill="#f3b9cd" stroke="none"/></g>
+      <g transform="translate(112,280) scale(.75)"><ellipse cx="0" cy="-16" rx="9" ry="16"/><ellipse cx="-15" cy="6" rx="15" ry="9" transform="rotate(-30 -15 6)"/><ellipse cx="15" cy="6" rx="15" ry="9" transform="rotate(30 15 6)"/><circle cx="0" cy="2" r="6" fill="#f3b9cd" stroke="none"/></g>
+    </g>
+    <g fill="#bfe0c4"><ellipse cx="70" cy="320" rx="34" ry="12" transform="rotate(-25 70 320)"/><ellipse cx="128" cy="330" rx="34" ry="12" transform="rotate(25 128 330)"/></g>
+  </svg>
+
+  <!-- лебеди hero -->
+  <svg class="swan-hero left" viewBox="0 0 160 120" aria-hidden="true"><g fill="#ffffff" stroke="#e7cdd6" stroke-width="1.2"><path d="M30 95 C20 70 40 55 60 60 C50 45 55 22 78 18 C92 16 96 30 86 36 C80 40 76 36 78 30 C70 34 70 48 82 58 C110 62 132 78 128 98 C126 108 40 110 30 95 Z"/><circle cx="84" cy="24" r="3" fill="#3a3357" stroke="none"/><path d="M92 24 L104 27 L92 30 Z" fill="#e0a96b" stroke="none"/></g></svg>
+  <svg class="swan-hero right" viewBox="0 0 160 120" aria-hidden="true"><g fill="#ffffff" stroke="#e7cdd6" stroke-width="1.2"><path d="M30 95 C20 70 40 55 60 60 C50 45 55 22 78 18 C92 16 96 30 86 36 C80 40 76 36 78 30 C70 34 70 48 82 58 C110 62 132 78 128 98 C126 108 40 110 30 95 Z"/><circle cx="84" cy="24" r="3" fill="#3a3357" stroke="none"/><path d="M92 24 L104 27 L92 30 Z" fill="#e0a96b" stroke="none"/></g></svg>
+
+  <div class="hero-head">
+    <h1 class="hero-names">Давид и&nbsp;Алина</h1>
+    <p class="hero-sub">приглашают вас стать гостями их свадебного торжества</p>
+  </div>
+
+  <div class="photo-frame">
+    <svg class="frame-sprig tl" viewBox="0 0 100 100" aria-hidden="true"><g fill="none" stroke="#c79a63" stroke-width="2"><path d="M8 92 C30 70 40 40 92 8"/><path d="M40 60 C50 50 64 52 70 44"/><path d="M55 40 C62 32 76 34 82 26"/></g><g fill="#f6d6df"><circle cx="92" cy="8" r="7"/><circle cx="70" cy="44" r="5"/><circle cx="82" cy="26" r="5"/></g></svg>
+    <img src="assets/couple.jpg" alt="Давид и Алина" />
+    <svg class="frame-sprig br" viewBox="0 0 100 100" aria-hidden="true"><g fill="none" stroke="#c79a63" stroke-width="2"><path d="M8 92 C30 70 40 40 92 8"/><path d="M40 60 C50 50 64 52 70 44"/><path d="M55 40 C62 32 76 34 82 26"/></g><g fill="#e6dcf1"><circle cx="92" cy="8" r="7"/><circle cx="70" cy="44" r="5"/><circle cx="82" cy="26" r="5"/></g></svg>
+  </div>
+
+  <div class="scroll-cue">листайте вниз ↓</div>
+</header>
+
+<!-- ===================== БЛОК 2 — ДАТА ===================== -->
+<section id="date">
+  <div class="container">
+    <p class="lead reveal" style="margin-top:0">
+      Приветствуем вас, дорогие гости! Для нас большая честь, что вы будете рядом в один из самых значимых дней нашей жизни. С огромной радостью сообщаем дату нашего бракосочетания:
+    </p>
+
+    <div class="cal-page reveal">
+      <div class="cal-month">Октябрь</div>
+      <div class="cal-year">2026</div>
+      <div class="cal-grid" id="calGrid"></div>
+      <div class="cal-foot">суббота · самый важный день</div>
+    </div>
+
+    <div class="cal-cta reveal">
+      <button class="btn" id="addCal">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="12" y1="14" x2="12" y2="18"/><line x1="10" y1="16" x2="14" y2="16"/></svg>
+        Добавить в календарь
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== БЛОК 3 — ТАЙМИНГ ===================== -->
+<section id="timing">
+  <div class="container">
+    <p class="eyebrow reveal">день торжества</p>
+    <h2 class="h2 reveal">Тайминг</h2>
+    <div class="divider reveal"><span class="ln"></span><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c1 3 4 4 4 7a4 4 0 0 1-8 0c0-3 3-4 4-7z"/></svg><span class="ln r"></span></div>
+
+    <div class="timeline reveal" id="timeline">
+      <div class="river-wrap">
+        <svg id="riverSvg" preserveAspectRatio="none">
+          <path id="riverPath" fill="none" stroke="#bcd9e6" stroke-width="10" stroke-linecap="round" opacity=".7"/>
+          <path id="riverPath2" fill="none" stroke="#e3f1f7" stroke-width="3" stroke-linecap="round" stroke-dasharray="2 10" opacity=".9"/>
+          <g id="riverNodes"></g>
+          <g id="riverSwan"><g class="swan-sway">
+            <g transform="scale(.5) translate(-80,-60)" fill="#ffffff" stroke="#d8c3cc" stroke-width="1.4">
+              <path d="M30 95 C20 70 40 55 60 60 C50 45 55 22 78 18 C92 16 96 30 86 36 C80 40 76 36 78 30 C70 34 70 48 82 58 C110 62 132 78 128 98 C126 108 40 110 30 95 Z"/>
+              <circle cx="84" cy="24" r="3" fill="#3a3357" stroke="none"/>
+              <path d="M92 24 L104 27 L92 30 Z" fill="#e0a96b" stroke="none"/>
+            </g>
+          </g></g>
+        </svg>
+      </div>
+
+      <div class="tl-list">
+        <article class="tl-item tl-1">
+          <div class="bg" style="background-image:url('assets/church.jpg')"></div>
+          <div class="scrim"></div>
+          <div class="tl-card">
+            <div class="tl-time">13:00</div>
+            <h3 class="tl-title">Таинство Венчания</h3>
+            <p class="tl-desc">Сбор гостей и начало самого трепетного таинства нашего дня.</p>
+          </div>
+        </article>
+
+        <article class="tl-item tl-2">
+          <div class="bg" style="background-image:url('assets/restaurant.jpg')"></div>
+          <div class="scrim"></div>
+          <div class="tl-card">
+            <div class="tl-time">17:00</div>
+            <h3 class="tl-title">Банкет</h3>
+            <p class="tl-desc">Праздничный ужин, тёплые тосты, музыка и танцы до самого вечера.</p>
+          </div>
+        </article>
+
+        <article class="tl-item tl-3">
+          <div class="bg"></div><div class="stars"></div>
+          <div class="scrim"></div>
+          <div class="tl-card">
+            <div class="tl-time">23:30</div>
+            <h3 class="tl-title">Завершение официальной части</h3>
+            <p class="tl-desc">Финальные огни, объятия и самые нежные слова на прощание.</p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== БЛОК 4 — МЕСТО ===================== -->
+<section id="place">
+  <div class="container">
+    <p class="eyebrow reveal">где нас найти</p>
+    <h2 class="h2 reveal">Место проведения</h2>
+    <div class="divider reveal"><span class="ln"></span><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c1 3 4 4 4 7a4 4 0 0 1-8 0c0-3 3-4 4-7z"/></svg><span class="ln r"></span></div>
+
+    <div class="place-card reveal">
+      <div class="place-info">
+        <div class="place-name">Банкетный зал «Арарат»</div>
+        <div class="place-addr">Ростовская улица, 59Б, Чалтырь</div>
+        <a class="btn ghost place-route" target="_blank" rel="noopener"
+           href="https://yandex.ru/maps/?text=Ростовская+улица,+59Б,+Чалтырь">Построить маршрут</a>
+      </div>
+      <div class="place-map">
+        <!-- Координаты приблизительные. Замените значения ll= (долгота,широта) и pt= (долгота,широта) на точные -->
+        <iframe
+          src="https://yandex.ru/map-widget/v1/?ll=39.4812%2C47.2792&z=17&pt=39.4812,47.2792,pm2rdm"
+          title="Банкетный зал Арарат на карте" loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"></iframe>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== БЛОК 5 — ДРЕСС-КОД ===================== -->
+<section id="dresscode">
+  <div class="container">
+    <p class="eyebrow reveal">дресс-код</p>
+    <h2 class="h2 reveal">Несколько деликатных пожеланий</h2>
+    <div class="divider reveal"><span class="ln"></span><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c1 3 4 4 4 7a4 4 0 0 1-8 0c0-3 3-4 4-7z"/></svg><span class="ln r"></span></div>
+
+    <img class="dc-img reveal" src="assets/dresscode.png" alt="Варианты торжественных нарядов для гостей" />
+
+    <h3 class="dc-sub reveal">Торжественный наряд</h3>
+    <p class="lead reveal">Мы будем признательны, если вы выберете торжественный наряд для этого особенного дня.</p>
+
+    <div class="dc-note reveal">
+      <svg viewBox="0 0 48 48" fill="none" stroke="#c97f97" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M24 8l6 6-3 4 5 22H16l5-22-3-4 6-6z" fill="#fff"/>
+        <path d="M20 14h8" />
+        <path d="M30 30l8 8M38 30l-8 8" stroke="#e7a9bd"/>
+      </svg>
+      <span>Пожалуйста, воздержитесь от белого — этот цвет мы оставляем невесте.</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== БЛОК 6 — ПОЖЕЛАНИЯ ===================== -->
+<section id="wishes">
+  <div class="container">
+    <p class="eyebrow reveal">о подарках</p>
+    <h2 class="h2 reveal">Пожелания</h2>
+    <div class="divider reveal"><span class="ln"></span><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c1 3 4 4 4 7a4 4 0 0 1-8 0c0-3 3-4 4-7z"/></svg><span class="ln r"></span></div>
+
+    <div class="wish-card reveal">
+      <svg class="orn a" viewBox="0 0 60 60" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 54C20 40 26 22 54 6"/><circle cx="54" cy="6" r="5" fill="#f6d6df" stroke="none"/></svg>
+      <svg class="orn b" viewBox="0 0 60 60" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 54C20 40 26 22 54 6"/><circle cx="54" cy="6" r="5" fill="#e6dcf1" stroke="none"/></svg>
+      <svg class="wish-ico" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M16 20c-4-6 2-12 8-6 6-6 12 0 8 6l-8 9-8-9z" fill="#f6d6df"/><path d="M14 30h20l-2 12H16l-2-12z" fill="#fff"/><path d="M24 30v12"/></svg>
+      <p class="wish-text">Для нас нет ничего дороже, чем видеть вас рядом в этот особенный день. Если вы захотите дополнить этот день небольшим подарком, мы будем рады бутылочке вина, которая станет частью нашей семейной коллекции, или сертификату на приятный сюрприз.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== БЛОК 7 — АНКЕТА ===================== -->
+<section id="rsvp">
+  <div class="container">
+    <p class="eyebrow reveal">подтверждение</p>
+    <h2 class="h2 reveal">Анкета гостя</h2>
+    <div class="divider reveal"><span class="ln"></span><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c1 3 4 4 4 7a4 4 0 0 1-8 0c0-3 3-4 4-7z"/></svg><span class="ln r"></span></div>
+
+    <form class="form-card reveal" id="rsvpForm" novalidate>
+      <div class="field">
+        <label for="gName">Ваше имя и фамилия</label>
+        <input class="input" id="gName" name="name" type="text" placeholder="Как к вам обращаться?" required />
+      </div>
+
+      <div class="field">
+        <label>Сможете ли вы присутствовать?</label>
+        <div class="pills">
+          <label class="pill"><input type="radio" name="attend" value="yes" checked><span>Да, с радостью!</span></label>
+          <label class="pill"><input type="radio" name="attend" value="no"><span>К сожалению, нет</span></label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Количество гостей</label>
+        <div class="counter">
+          <button type="button" class="cnt-btn" data-act="minus" aria-label="Уменьшить">−</button>
+          <span id="cntVal">1</span>
+          <button type="button" class="cnt-btn" data-act="plus" aria-label="Увеличить">+</button>
+        </div>
+        <input type="hidden" id="gCount" name="count" value="1">
+      </div>
+
+      <div class="field">
+        <label>Предпочтения по напиткам</label>
+        <div class="alc-grid pills">
+          <label class="pill"><input type="checkbox" name="drink" value="wine"><span>Вино</span></label>
+          <label class="pill"><input type="checkbox" name="drink" value="champagne"><span>Шампанское</span></label>
+          <label class="pill"><input type="checkbox" name="drink" value="strong"><span>Крепкое</span></label>
+          <label class="pill"><input type="checkbox" name="drink" value="soft"><span>Безалкогольное</span></label>
+          <label class="pill"><input type="checkbox" name="drink" value="none"><span>Не пью</span></label>
+        </div>
+      </div>
+
+      <div style="text-align:center">
+        <button type="submit" class="btn">Отправить ответ</button>
+      </div>
+    </form>
+  </div>
+</section>
+
+<!-- ===================== ФИНАЛ ===================== -->
+<footer id="finale">
+  <svg class="fin-heart reveal" viewBox="0 0 300 220" aria-hidden="true">
+    <g fill="#ffffff" stroke="#e7a9bd" stroke-width="2">
+      <!-- левый лебедь: шея образует левую половину сердца -->
+      <path d="M70 200 C40 200 30 160 50 140 C70 122 96 130 100 110 C104 86 86 70 96 50 C104 34 130 36 138 56 C120 50 112 64 120 78 C132 100 150 110 150 130"/>
+      <path d="M52 150 C40 168 44 196 70 200 C92 203 110 192 120 178 C100 184 78 182 66 168 Z"/>
+      <circle cx="132" cy="48" r="3.4" fill="#3a3357" stroke="none"/>
+      <path d="M138 50 L150 53 L138 56 Z" fill="#e0a96b" stroke="none"/>
+      <!-- правый лебедь (зеркально) -->
+      <g transform="translate(300,0) scale(-1,1)">
+        <path d="M70 200 C40 200 30 160 50 140 C70 122 96 130 100 110 C104 86 86 70 96 50 C104 34 130 36 138 56 C120 50 112 64 120 78 C132 100 150 110 150 130"/>
+        <path d="M52 150 C40 168 44 196 70 200 C92 203 110 192 120 178 C100 184 78 182 66 168 Z"/>
+        <circle cx="132" cy="48" r="3.4" fill="#3a3357" stroke="none"/>
+        <path d="M138 50 L150 53 L138 56 Z" fill="#e0a96b" stroke="none"/>
+      </g>
+    </g>
+    <path d="M150 96 C142 84 124 88 124 102 C124 116 150 132 150 132 C150 132 176 116 176 102 C176 88 158 84 150 96 Z" fill="#f6d6df" stroke="#e7a9bd" stroke-width="1.5"/>
+  </svg>
+
+  <div class="fin-names reveal">Д &amp; А</div>
+  <div class="fin-date reveal">31 · 10 · 2026</div>
+  <p class="fin-msg reveal">До встречи на нашем празднике —<br>там, где начинается наша общая история.</p>
+  <div class="fin-foot reveal">с любовью и трепетом</div>
+  <a class="to-top reveal" href="#hero">↑ в начало приглашения</a>
+</footer>
+
+<script>
+/* ============================================================
+   ЛЕПЕСТКИ
+   ============================================================ */
+(function(){
+  const box=document.getElementById('petals');
+  for(let i=0;i<16;i++){
+    const p=document.createElement('span');
+    p.className='petal';
+    const s=8+Math.random()*14;
+    p.style.left=Math.random()*100+'vw';
+    p.style.width=s+'px';p.style.height=s+'px';
+    p.style.opacity=(.3+Math.random()*.4).toFixed(2);
+    p.style.animationDuration=(9+Math.random()*10)+'s';
+    p.style.animationDelay=(-Math.random()*12)+'s';
+    box.appendChild(p);
+  }
+})();
+
+/* ============================================================
+   КАЛЕНДАРЬ: октябрь 2026 (Пн-вс), 31 — в сердечке
+   ============================================================ */
+(function(){
+  const grid=document.getElementById('calGrid');
+  const dows=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+  dows.forEach((d,i)=>{
+    const e=document.createElement('div');
+    e.className='cal-dow'+(i>=5?' we':'');e.textContent=d;grid.appendChild(e);
+  });
+  const first=new Date(2026,9,1);
+  const offset=(first.getDay()+6)%7; // Пн=0
+  for(let i=0;i<offset;i++){const e=document.createElement('div');e.className='cal-day empty';grid.appendChild(e);}
+  for(let d=1;d<=31;d++){
+    const e=document.createElement('div');e.className='cal-day';e.textContent=d;
+    if(d===31){
+      e.classList.add('today-mark');
+      e.insertAdjacentHTML('beforeend',
+        '<svg class="cal-heart" viewBox="0 0 40 40"><path d="M20 35 C6 24 2 16 8 9 C13 3 20 8 20 13 C20 8 27 3 32 9 C38 16 34 24 20 35 Z" fill="#f6d6df" stroke="#c97f97" stroke-width="2"/></svg>');
+    }
+    grid.appendChild(e);
+  }
+})();
+
+/* ============================================================
+   ДОБАВИТЬ В КАЛЕНДАРЬ (.ics) — «Свадьба Давида и Алины», 17:00
+   ============================================================ */
+document.getElementById('addCal').addEventListener('click',function(){
+  const ics=[
+    'BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//David & Alina Wedding//RU',
+    'CALSCALE:GREGORIAN','METHOD:PUBLISH',
+    'BEGIN:VEVENT',
+    'UID:david-alina-wedding-20261031@wedding',
+    'DTSTAMP:20260728T000000Z',
+    'DTSTART:20261031T170000',
+    'DTEND:20261031T233000',
+    'SUMMARY:Свадьба Давида и Алины',
+    'LOCATION:Банкетный зал «Арарат», Ростовская улица, 59Б, Чалтырь',
+    'DESCRIPTION:Таинство венчания в 13:00. Праздничный банкет в 17:00. Завершение официальной части в 23:30.',
+    'STATUS:CONFIRMED','END:VEVENT','END:VCALENDAR'
+  ].join('\r\n');
+  const blob=new Blob([ics],{type:'text/calendar;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download='svadba-david-alina.ics';
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1500);
+});
+
+/* ============================================================
+   РЕКА + ПЛЫВУЩИЙ ЛЕБЕДЬ (тайминг)
+   ============================================================ */
+const River=(function(){
+  const tl=document.getElementById('timeline');
+  const svg=document.getElementById('riverSvg');
+  const path=document.getElementById('riverPath');
+  const path2=document.getElementById('riverPath2');
+  const nodes=document.getElementById('riverNodes');
+  const swan=document.getElementById('riverSwan');
+  let W=150,H=600,pts=[];
+
+  function build(){
+    W=svg.clientWidth||150; H=svg.clientHeight||600;
+    svg.setAttribute('viewBox','0 0 '+W+' '+H);
+    const items=[...tl.querySelectorAll('.tl-item')];
+    const centers=items.map(it=>it.offsetTop+it.offsetHeight/2);
+    const cx=W/2, amp=Math.min(W*0.26,34);
+    const y0=Math.max(20,centers[0]-30), y1=Math.min(H-20,centers[centers.length-1]+30);
+    pts=[];
+    for(let y=y0;y<=y1;y+=6){
+      const x=cx+amp*Math.sin((y/ H)*Math.PI*3);
+      pts.push([x,y]);
+    }
+    const d='M '+pts.map(p=>p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' L ');
+    path.setAttribute('d',d);path2.setAttribute('d',d);
+    // узелки на реке напротив каждого пункта
+    let nh='';
+    centers.forEach(cy=>{
+      const x=cx+amp*Math.sin((cy/H)*Math.PI*3);
+      nh+='<circle cx="'+x.toFixed(1)+'" cy="'+cy.toFixed(1)+'" r="9" fill="#fff" stroke="#c97f97" stroke-width="2.5"/>';
+      nh+='<circle cx="'+x.toFixed(1)+'" cy="'+cy.toFixed(1)+'" r="3" fill="#c97f97"/>';
+      nh+='<line x1="'+x.toFixed(1)+'" y1="'+cy.toFixed(1)+'" x2="'+W+'" y2="'+cy.toFixed(1)+'" stroke="#e3c79b" stroke-width="1.5" stroke-dasharray="3 5"/>';
+    });
+    nodes.innerHTML=nh;
+    moveSwan();
+  }
+  function moveSwan(){
+    if(!path.getTotalLength) return;
+    const rect=tl.getBoundingClientRect();
+    const vh=window.innerHeight;
+    let p=(vh*0.5-rect.top)/rect.height;
+    p=Math.max(0,Math.min(1,p));
+    const len=path.getTotalLength();
+    const pt=path.getPointAtLength(p*len);
+    swan.setAttribute('transform','translate('+pt.x.toFixed(1)+','+pt.y.toFixed(1)+')');
+  }
+  return {build,moveSwan};
+})();
+
+/* ============================================================
+   SCROLL REVEAL + привязка лебедя к скроллу
+   ============================================================ */
+const io=new IntersectionObserver((es)=>{
+  es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target);}});
+},{threshold:.15});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+let ticking=false;
+window.addEventListener('scroll',()=>{
+  if(!ticking){requestAnimationFrame(()=>{River.moveSwan();ticking=false;});ticking=true;}
+},{passive:true});
+window.addEventListener('resize',()=>River.build());
+window.addEventListener('load',()=>{setTimeout(River.build,300);});
+
+/* ============================================================
+   СЧЁТЧИК ГОСТЕЙ
+   ============================================================ */
+(function(){
+  let n=1;const val=document.getElementById('cntVal'),hid=document.getElementById('gCount');
+  const minus=document.querySelector('[data-act="minus"]'),plus=document.querySelector('[data-act="plus"]');
+  function render(){val.textContent=n;hid.value=n;minus.disabled=n<=1;plus.disabled=n>=10;}
+  minus.addEventListener('click',()=>{if(n>1){n--;render();}});
+  plus.addEventListener('click',()=>{if(n<10){n++;render();}});
+  render();
+})();
+
+/* ============================================================
+   ОТПРАВКА АНКЕТЫ (локально — без бэкенда)
+   ============================================================ */
+document.getElementById('rsvpForm').addEventListener('submit',function(e){
+  e.preventDefault();
+  const name=document.getElementById('gName').value.trim();
+  if(!name){document.getElementById('gName').focus();
+    document.getElementById('gName').style.borderColor='#c97f97';return;}
+  this.innerHTML='<div class="form-thanks">'+
+    '<svg width="60" height="60" viewBox="0 0 48 48" fill="none" stroke="#c97f97" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto 14px;display:block"><path d="M16 20c-4-6 2-12 8-6 6-6 12 0 8 6l-8 9-8-9z" fill="#f6d6df"/></svg>'+
+    '<h3>Спасибо, '+name.replace(/[<>&]/g,'')+'!</h3>'+
+    '<p>Ваш ответ сохранён. Мы считаем дни до встречи с вами ♥</p></div>';
+});
+
+/* ============================================================
+   ИНТРО: открытие конверта
+   ============================================================ */
+const intro=document.getElementById('intro');
+const envelope=document.getElementById('envelope');
+const hint=document.getElementById('hint');
+let opened=false;
+function openEnvelope(){
+  if(opened)return;opened=true;
+  envelope.classList.add('open');
+  hint.style.opacity='0';
+  Music.ensure(true);                 // жест пользователя → можно включить звук
+  setTimeout(()=>{intro.classList.add('fading');document.body.classList.add('revealed');},1600);
+  setTimeout(()=>{intro.style.display='none';document.body.classList.remove('locked');
+    window.scrollTo(0,0);River.build();},2850);
+}
+envelope.addEventListener('click',openEnvelope);
+envelope.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openEnvelope();}});
+
+/* ============================================================
+   МУЗЫКАЛЬНАЯ ШКАТУЛКА (Web Audio — без внешних файлов)
+   ============================================================ */
+const Music=(function(){
+  let ctx=null,master=null,filter=null,playing=false,timer=null;
+  const N={G3:196.00,A3:220.00,C4:261.63,D4:293.66,E4:329.63,F4:349.23,
+    G4:392.00,A4:440.00,B4:493.88,C5:523.25,D5:587.33,E5:659.25,F5:698.46,G5:783.99,A5:880.00,
+    F3:174.61,C3:130.81};
+  const E=0.30; // длительность восьмой (сек)
+  // нежные восходяще-нисходящие арпеджио по аккордам Am – F – C – G
+  const bars=[
+    [['A3',8],['A4',1],['C5',1],['E5',1],['A5',1],['E5',1],['C5',1],['A4',1],['E5',1]],
+    [['F3',8],['F4',1],['A4',1],['C5',1],['F5',1],['C5',1],['A4',1],['F4',1],['C5',1]],
+    [['C3',8],['C4',1],['E4',1],['G4',1],['C5',1],['G4',1],['E4',1],['C4',1],['G4',1]],
+    [['G3',8],['G4',1],['B4',1],['D5',1],['G5',1],['D5',1],['B4',1],['G4',1],['D5',1]]
+  ];
+  function bell(freq,t,dur,gain){
+    const o=ctx.createOscillator(),o2=ctx.createOscillator(),g=ctx.createGain();
+    o.type='sine';o2.type='triangle';o.frequency.value=freq;o2.frequency.value=freq*3;
+    const g2=ctx.createGain();g2.gain.value=0.18;
+    g.gain.setValueAtTime(0.0001,t);
+    g.gain.exponentialRampToValueAtTime(gain,t+0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    o.connect(g);o2.connect(g2);g2.connect(g);g.connect(filter);
+    o.start(t);o2.start(t);o.stop(t+dur+0.05);o2.stop(t+dur+0.05);
+  }
+  function scheduleLoop(start){
+    let t=start;
+    bars.forEach(bar=>{
+      bar.forEach((note,i)=>{
+        const [name,beats]=note;const dur=beats*E*1.6;
+        const isBass=i===0;
+        bell(N[name],t,dur,isBass?0.10:0.16);
+        t+=beats*E;
+      });
+    });
+    const loopLen=(t-start);
+    timer=setTimeout(()=>{if(playing)scheduleLoop(ctx.currentTime+0.06);},(loopLen-0.25)*1000);
+    return t;
+  }
+  function ensure(start){
+    if(!ctx){
+      try{
+        ctx=new (window.AudioContext||window.webkitAudioContext)();
+        master=ctx.createGain();master.gain.value=0.5;
+        filter=ctx.createBiquadFilter();filter.type='lowpass';filter.frequency.value=2600;
+        filter.connect(master);master.connect(ctx.destination);
+      }catch(e){return;}
+    }
+    if(start){
+      if(ctx.state==='suspended')ctx.resume();
+      if(!playing){playing=true;scheduleLoop(ctx.currentTime+0.1);setIcon(true);}
+    }
+  }
+  function toggle(){
+    if(!ctx){ensure(true);return;}
+    if(playing){playing=false;clearTimeout(timer);ctx.suspend();setIcon(false);}
+    else{ensure(true);}
+  }
+  function setIcon(on){
+    const b=document.getElementById('musicToggle');
+    b.classList.toggle('muted',!on);
+    b.classList.toggle('playing',on);
+  }
+  document.getElementById('musicToggle').addEventListener('click',toggle);
+  return {ensure,toggle};
+})();
+</script>
+</body>
+</html>
